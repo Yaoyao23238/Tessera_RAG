@@ -1,0 +1,66 @@
+# CI：后端 pytest 全量 + 前端 tsc 类型检查
+# 与本地验证口径一致（AGENTS §4）：
+#   后端 .venv\Scripts\python.exe -m pytest -q / 前端 node node_modules/typescript/bin/tsc -b
+# 说明：测试全部 fake 注入，不需要下载模型权重；评测回归门需 TESSERA_API
+# 环境变量，离线环境自动 skip（预期 3 skipped）。
+
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      # 依赖全家桶（torch/docling/transformers）远超 runner 磁盘余量，
+      # 首跑实测 Errno 28 No space left on device。先清 runner 预装的大件
+      # （Android SDK/dotnet/ghc/CodeQL，本项目用不到），再用 CPU 版 torch
+      # 占位——pip 解析时 torch 已满足，不会再拉 2.5GB CUDA 轮子与 nvidia-* 全家
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install CPU torch (avoid CUDA wheels blowing up disk)
+        run: python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run tests
+        run: python -m pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          # 仓库无 package-lock.json，缓存键退而用 package.json
+          cache-dependency-path: frontend/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Type check
+        run: node node_modules/typescript/bin/tsc -b

@@ -1,0 +1,128 @@
+%% 4.1 摄入链路（上传 → 解析 → 切分 → 统计快照 → 确认入库）
+sequenceDiagram
+    actor User
+    participant FE as Frontend
+    participant API as FastAPI api
+    participant W as workers.tasks
+    participant P as core.parser
+    participant C as core.chunker
+    participant SS as core.stats
+    participant DB as SQLite
+    participant E as core.embedder
+    participant VS as core.vector_store
+    participant WS as WebSocket
+
+    User->>FE: 上传文件(多选)
+    FE->>API: POST /api/documents/upload
+    API->>DB: 创建 Document(status=uploaded) + Task
+    API->>W: dispatch(parse_task)
+    W->>P: parse(file_path)
+    P->>P: 缓存命中? parse_{file_hash}.json
+    P-->>W: blocks(文档树)
+    W->>DB: status=parsed, 存 parse_cache_path
+    W->>C: chunk(blocks, config)
+    C->>C: 结构聚合→长段拆分(段落/语义/递归)→LLM(可选)→overlap→小块合并→Parent-Child
+    C-->>W: parent_chunks + child_chunks
+    W->>DB: 写入 Chunk, status=chunked
+    W->>SS: compute_snapshot(document_id, config_hash)
+    SS->>DB: 写 ChunkStatsSnapshot(保留最近5版)
+    W-->>WS: task_progress(chunked)
+    FE->>User: 预览页渲染(左右联动+统计仪表盘, 与上版对比)
+    User->>FE: 确认入库
+    FE->>API: POST /api/documents/{id}/index
+    API->>W: dispatch(embed_task)
+    W->>E: embed(child_chunks.content)
+    alt 向量化失败
+        E-->>W: raise
+        W->>DB: status=embed_failed
+    else 成功
+        E-->>W: vectors(写 embedding 缓存)
+        W->>VS: upsert(vectors, table=tessera_chunks)
+        alt 写库失败
+            VS-->>W: raise
+            W->>DB: status=store_failed (重试可复用缓存)
+        else 成功
+            VS-->>W: ok
+            W->>DB: is_embedded=true, status=indexed
+        end
+    end
+    W-->>WS: task_progress(indexed/failed)
+
+%% 4.2 检索链路（含 Rerank）
+sequenceDiagram
+    actor User
+    participant FE as Frontend
+    participant API as api.search
+    participant R as core.retriever
+    participant E as core.embedder
+    participant VS as VectorStore(LanceDB默认)
+    participant RR as core.reranker
+    participant DB as SQLite
+
+    User->>FE: 输入 query 回车
+    FE->>API: POST /api/search {query, top_k, filters}
+    API->>R: search(query, top_k, filters)
+    R->>E: embed([query])
+    E-->>R: query_vec
+    par 稠密与稀疏并行
+        R->>VS: dense_search(query_vec, top_k*2, tessera_chunks)
+        VS-->>R: dense_hits
+    and
+        R->>VS: sparse_search(query, top_k*2, tessera_chunks)
+        VS-->>R: sparse_hits (Tantivy BM25 / FTS5)
+    end
+    R->>R: rrf_fuse(dense_hits, sparse_hits, k=60)
+    alt RerankerConfig.enabled
+        R->>RR: rerank(query, fused[:top_n=20])
+        RR-->>R: reranked_hits
+    end
+    R->>DB: expand_parents(child_ids → parent_id → 父块全文)
+    DB-->>R: parent contents + breadcrumb + page
+    R-->>API: SearchResponse(父块+子块片段+score+dense_rank+sparse_rank+rerank_score)
+    API-->>FE: {code:0, data:...}
+    FE->>User: 结果列表(关键词高亮/分数条/Rerank徽标)
+
+%% 4.3 评测链路（独立索引命名空间）
+sequenceDiagram
+    actor User
+    participant FE as Frontend
+    participant API as api.evaluation
+    participant EV as core.evaluator
+    participant LLM as services.llm
+    participant DB as SQLite
+    participant E as core.embedder
+    participant VS as LanceDB(独立表 exp_xxx)
+    participant R as core.retriever
+    participant WS as WebSocket
+
+    alt 上传测试集
+        User->>FE: 上传 Q&A JSON/JSONL
+        FE->>API: POST /api/evaluation/qasets
+        API->>DB: 写 QASet(source=upload) + QAItem
+    else LLM 自动生成
+        User->>FE: 选择文档 → 生成(默认20条)
+        FE->>API: POST /api/evaluation/qasets/generate
+        API->>EV: generate_qa(document_id, count=20)
+        EV->>DB: 按 chunk 抽样
+        EV->>LLM: chat(为chunk生成问答对)
+        LLM-->>EV: {question, answer}
+        EV->>DB: 写 QASet(source=llm_generated) + QAItem(source_chunk_id回填)
+    end
+    User->>FE: 选择测试集+切分配置 → 运行实验
+    FE->>API: POST /api/evaluation/experiments
+    API->>DB: 写 Experiment(vector_table=exp_{id8})
+    API->>EV: run_experiment(exp_id)
+    EV->>DB: 按 chunking_config 重切文档(或取切分缓存)
+    EV->>E: embed(chunks)
+    E-->>EV: vectors
+    EV->>VS: upsert(vectors, table=exp_xxx)
+    loop 每条 QAItem
+        EV->>R: search(question, table=exp_xxx)
+        R-->>EV: ranked chunk_ids
+        EV-->>WS: experiment_progress(i/total)
+    end
+    EV->>EV: recall@1/5/10 + MRR(命中判定: source_chunk_id 或其 parent 在 top-k)
+    EV->>DB: 更新 Experiment(status=completed, 指标)
+    EV-->>WS: experiment_progress(done)
+    FE->>User: 指标卡片 + 多实验对比折线图(X=k, Y=Recall)
+    Note over User,VS: 用户可 DELETE /api/evaluation/experiments/{id} 级联 drop_table(exp_xxx)

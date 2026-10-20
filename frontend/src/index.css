@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 0.5rem;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* 细滚动条（面板内滚动区域） */
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 切分预览：原文高亮（hover chunk 卡片时黄色半透明） */
+.block-highlight {
+  background-color: rgba(250, 204, 21, 0.35);
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+/* 点击 chunk 卡片后的高亮闪烁 */
+@keyframes block-flash {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  30%,
+  70% {
+    background-color: rgba(250, 204, 21, 0.55);
+  }
+}
+.block-flash {
+  animation: block-flash 0.9s ease-in-out 2;
+  border-radius: 4px;
+}
+
+/* 检索结果关键词高亮 */
+.search-hit {
+  background-color: rgba(250, 204, 21, 0.45);
+  border-radius: 2px;
+  padding: 0 1px;
+}

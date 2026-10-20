@@ -1,0 +1,9 @@
+# 构建上下文排除：运行时数据（含已下载模型，数 GB）与本地环境
+data/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+Dockerfile
+.dockerignore

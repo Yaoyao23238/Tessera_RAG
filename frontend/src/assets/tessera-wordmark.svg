@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
+  <!-- Tessera Art Text: Stylized "TESSERA" with mosaic accent -->
+  <!-- Color palette: blue #3B82F6, green #10B981, orange #F59E0B, purple #8B5CF6 -->
+  <defs>
+    <linearGradient id="letterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="33%" stop-color="#10B981"/>
+      <stop offset="66%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="400" fill="#FFFFFF"/>
+
+  <!-- Main wordmark: TESSERA in bold geometric sans-serif -->
+  <text x="400" y="220"
+        font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="140"
+        font-weight="900"
+        letter-spacing="-4"
+        text-anchor="middle"
+        fill="url(#letterGrad)">TESSERA</text>
+
+  <!-- Mosaic tile accents below the wordmark -->
+  <!-- Row of small colored tiles -->
+  <g transform="translate(220, 280)">
+    <rect x="0"   y="0" width="24" height="24" rx="4" fill="#3B82F6"/>
+    <rect x="32"  y="0" width="24" height="24" rx="4" fill="#10B981"/>
+    <rect x="64"  y="0" width="24" height="24" rx="4" fill="#F59E0B"/>
+    <rect x="96"  y="0" width="24" height="24" rx="4" fill="#8B5CF6"/>
+    <rect x="128" y="0" width="24" height="24" rx="4" fill="#3B82F6"/>
+    <rect x="160" y="0" width="24" height="24" rx="4" fill="#10B981"/>
+    <rect x="192" y="0" width="24" height="24" rx="4" fill="#F59E0B"/>
+    <rect x="224" y="0" width="24" height="24" rx="4" fill="#8B5CF6"/>
+    <rect x="256" y="0" width="24" height="24" rx="4" fill="#3B82F6"/>
+    <rect x="288" y="0" width="24" height="24" rx="4" fill="#10B981"/>
+    <rect x="320" y="0" width="24" height="24" rx="4" fill="#F59E0B"/>
+    <rect x="352" y="0" width="24" height="24" rx="4" fill="#8B5CF6"/>
+  </g>
+
+  <!-- Tagline -->
+  <text x="400" y="360"
+        font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="22"
+        font-weight="500"
+        letter-spacing="8"
+        text-anchor="middle"
+        fill="#64748B">LOCAL RAG INGESTION TOOL</text>
+</svg>

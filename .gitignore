@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# 运行时数据
+backend/data/
+data/
+*.db
+*.db-journal
+
+# 前端
+node_modules/
+frontend/dist/
+*.tsbuildinfo
+vite.config.ts.timestamp-*
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 运行日志
+backend/server.*.log
+frontend/vite.*.log
+
+# IDE
+.idea/
+.vscode/

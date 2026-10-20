@@ -1,0 +1,199 @@
+classDiagram
+    class Document {
+        +str id
+        +str filename
+        +str file_path
+        +str file_hash
+        +str file_type
+        +int file_size
+        +int page_count
+        +DocStatus status
+        +str title
+        +str author
+        +str lang
+        +str parse_cache_path
+        +int chunk_count
+        +int embedded_count
+        +str error_message
+        +datetime created_at
+        +datetime updated_at
+    }
+    class Chunk {
+        +str id
+        +str document_id
+        +str parent_id
+        +int chunk_index
+        +str content
+        +ChunkType chunk_type
+        +list~str~ breadcrumb
+        +int page_number
+        +int end_page
+        +int token_count
+        +int char_count
+        +str strategy
+        +list bbox
+        +list~str~ block_ids
+        +dict table_data
+        +str heading_text
+        +str embedding_model
+        +bool is_embedded
+        +str vector_id
+        +datetime created_at
+    }
+    class Block {
+        +str id
+        +BlockType type
+        +str text
+        +int level
+        +int page
+        +list bbox
+        +dict table_data
+        +int list_level
+    }
+    class QASet {
+        +str id
+        +str name
+        +str source
+        +str document_id
+        +int item_count
+        +str file_path
+        +datetime created_at
+    }
+    class QAItem {
+        +str id
+        +str qa_set_id
+        +str question
+        +str answer
+        +str source_chunk_id
+        +dict meta
+    }
+    class Experiment {
+        +str id
+        +str name
+        +str qa_set_id
+        +dict chunking_config
+        +str embedding_model
+        +str vector_table
+        +list~str~ document_ids
+        +float recall_at_1
+        +float recall_at_5
+        +float recall_at_10
+        +float mrr
+        +ExpStatus status
+        +str error_message
+        +datetime created_at
+        +datetime completed_at
+    }
+    class ChunkStatsSnapshot {
+        +str id
+        +str document_id
+        +str config_hash
+        +int version
+        +dict histogram
+        +dict type_counts
+        +float mean_tokens
+        +float median_tokens
+        +int chunk_count
+        +datetime created_at
+    }
+    class Task {
+        +str id
+        +str document_id
+        +str task_type
+        +str status
+        +int progress
+        +str message
+        +str error
+    }
+    class Parser {
+        +parse(file_path, password) DocTree
+    }
+    class Chunker {
+        +chunk(blocks, config) ChunkResult
+        -structure_aggregate()
+        -split_long_section()
+        -llm_review()
+        -apply_overlap()
+        -merge_small()
+    }
+    class Embedder {
+        <<abstract>>
+        +embed(texts) EmbeddingResult
+        +dimensions() int
+        +model_name() str
+    }
+    class LocalEmbedder {
+        +ensure_model(progress_cb)
+    }
+    class APIEmbedder
+    class Reranker {
+        +enabled bool
+        +top_n int
+        +ensure_model(progress_cb)
+        +rerank(query, candidates) list~ScoredChunk~
+    }
+    class VectorStore {
+        <<abstract>>
+        +upsert(items, table)
+        +dense_search(query_vec, top_k, filters, table)
+        +sparse_search(query, top_k, filters, table)
+        +delete_by_document(doc_id, table)
+        +drop_table(table)
+        +health() bool
+    }
+    class LanceDBStore
+    class SqliteVecStore
+    class QdrantStore
+    class PgVectorStore
+    class Retriever {
+        +search(query, top_k, filters, table) SearchResponse
+        -rrf_fuse(dense, sparse, k)
+        -expand_parents(hits)
+    }
+    class Evaluator {
+        +generate_qa(document_id, count) QASet
+        +run_experiment(exp_id) Experiment
+        -recall_at_k(ranks) dict
+        -mrr(ranks) float
+    }
+    class Exporter {
+        +export_jsonl(document_ids, fmt, sections) Path
+    }
+    class StatsService {
+        +compute_snapshot(document_id, config_hash) ChunkStatsSnapshot
+        +get_with_previous(document_id) CompareResult
+    }
+    class ModelManager {
+        +ensure_model(model_id, progress_cb) Path
+        +status(model_id) ModelStatus
+    }
+    class LLMClient {
+        +chat(messages, **kw) str
+        +test_connection() bool
+    }
+
+    Document "1" --> "*" Chunk
+    Chunk "1" o-- "*" Chunk : parent-child
+    Parser ..> Block : produces
+    Chunker ..> Block : consumes
+    Chunker ..> Chunk : produces
+    Chunker --> LLMClient : optional
+    Embedder <|-- LocalEmbedder
+    Embedder <|-- APIEmbedder
+    VectorStore <|-- LanceDBStore
+    VectorStore <|-- SqliteVecStore
+    VectorStore <|-- QdrantStore
+    VectorStore <|-- PgVectorStore
+    Retriever --> Embedder
+    Retriever --> VectorStore
+    Retriever --> Reranker : optional
+    Evaluator --> Retriever
+    Evaluator --> VectorStore : isolated table
+    Evaluator --> Experiment
+    Evaluator --> LLMClient : QA generation
+    QASet "1" --> "*" QAItem
+    Experiment "*" --> "1" QASet
+    StatsService ..> ChunkStatsSnapshot
+    Exporter ..> Chunk
+    LocalEmbedder --> ModelManager
+    Reranker --> ModelManager

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <!-- Tessera Logo: Mosaic T -->
+  <!-- Color palette: blue #3B82F6, green #10B981, orange #F59E0B, purple #8B5CF6 -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="100%" stop-color="#F1F5F9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect x="8" y="8" width="224" height="224" rx="40" ry="40" fill="url(#bgGrad)" stroke="#E2E8F0" stroke-width="2"/>
+
+  <!-- Mosaic T pattern - 5 columns wide x 6 rows tall, each tile 32x32 with 4px gap -->
+  <!-- Tile size: 32, gap: 4, starting at x=40, y=40 -->
+  <!-- Row 0 (top bar of T): y=40 -->
+  <g>
+    <!-- Row 1: top horizontal bar -->
+    <rect x="40"  y="40" width="32" height="32" rx="6" fill="#3B82F6"/>
+    <rect x="76"  y="40" width="32" height="32" rx="6" fill="#10B981"/>
+    <rect x="112" y="40" width="32" height="32" rx="6" fill="#3B82F6"/>
+    <rect x="148" y="40" width="32" height="32" rx="6" fill="#F59E0B"/>
+    <rect x="184" y="40" width="32" height="32" rx="6" fill="#8B5CF6"/>
+
+    <!-- Row 2 -->
+    <rect x="40"  y="76" width="32" height="32" rx="6" fill="#8B5CF6"/>
+    <rect x="76"  y="76" width="32" height="32" rx="6" fill="#3B82F6"/>
+    <rect x="112" y="76" width="32" height="32" rx="6" fill="#10B981"/>
+    <rect x="148" y="76" width="32" height="32" rx="6" fill="#3B82F6"/>
+    <rect x="184" y="76" width="32" height="32" rx="6" fill="#F59E0B"/>
+
+    <!-- Row 3: stem of T starts (center column) -->
+    <rect x="40"  y="112" width="32" height="32" rx="6" fill="#F1F5F9"/>
+    <rect x="76"  y="112" width="32" height="32" rx="6" fill="#F1F5F9"/>
+    <rect x="112" y="112" width="32" height="32" rx="6" fill="#3B82F6"/>
+    <rect x="148" y="112" width="32" height="32" rx="6" fill="#F1F5F9"/>
+    <rect x="184" y="112" width="32" height="32" rx="6" fill="#F1F5F9"/>
+
+    <!-- Row 4 -->
+    <rect x="40"  y="148" width="32" height="32" rx="6" fill="#F1F5F9"/>
+    <rect x="76"  y="148" width="32" height="32" rx="6" fill="#F1F5F9"/>
+    <rect x="112" y="148" width="32" height="32" rx="6" fill="#10B981"/>
+    <rect x="148" y="148" width="32" height="32" rx="6" fill="#F1F5F9"/>
+    <rect x="184" y="148" width="32" height="32" rx="6" fill="#F1F5F9"/>
+
+    <!-- Row 5 -->
+    <rect x="40"  y="184" width="32" height="32" rx="6" fill="#F1F5F9"/>
+    <rect x="76"  y="184" width="32" height="32" rx="6" fill="#F1F5F9"/>
+    <rect x="112" y="184" width="32" height="32" rx="6" fill="#F59E0B"/>
+    <rect x="148" y="184" width="32" height="32" rx="6" fill="#F1F5F9"/>
+    <rect x="184" y="184" width="32" height="32" rx="6" fill="#F1F5F9"/>
+
+    <!-- Row 6: accent floating tiles -->
+    <rect x="40"  y="220" width="32" height="32" rx="6" fill="#F1F5F9" opacity="0"/>
+    <rect x="76"  y="220" width="32" height="32" rx="6" fill="#F1F5F9" opacity="0"/>
+    <rect x="112" y="220" width="32" height="32" rx="6" fill="#8B5CF6"/>
+  </g>
+</svg>

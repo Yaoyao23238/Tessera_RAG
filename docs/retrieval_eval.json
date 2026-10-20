@@ -1,0 +1,98 @@
+{
+  "name": "Tessera 检索评测集（hit@5）",
+  "purpose": "把「稀疏通道噪声 / Planning 霸榜」变成可度量数字。共 18 条 = 12 条正例（每文档 3 条有答案查询）+ 6 条全库无答案负例；正例按期望命中文档计 hit@5，负例期望 top5 全部为空（即不应被噪声占满）。",
+  "usage": "POST /api/evaluation/qasets 上传本文件（或用评测页导入）；正例按 expect_document 做文档级命中判定（与评测回归门 hit@5 口径一致，不随重切过期），负例 expect_document=null 且不计入 Recall/MRR 分母（期望 top5 全空）。也可直接 POST /api/search 逐条比对，或跑 pytest tests/test_eval_gate.py（需 TESSERA_API 环境变量）。",
+  "precondition": "负例「top5 全空」依赖两个条件同时成立：① rerank 已启用（设置 → Rerank，且模型已下载）② reranker.min_score > 0（默认 0.1）。任一不满足时负例会返回噪声，属预期而非检索退化。正例不依赖这两条。",
+  "items": [
+    {
+      "question": "参考文献的著录格式有哪些规定",
+      "expect_document": "《信息与文献：参考文献著录规则》.pdf",
+      "meta": { "kind": "positive", "document": "参考文献著录规则" }
+    },
+    {
+      "question": "文献类型标识代码怎么表示",
+      "expect_document": "《信息与文献：参考文献著录规则》.pdf",
+      "meta": { "kind": "positive", "document": "参考文献著录规则" }
+    },
+    {
+      "question": "专著的著录项目有哪些",
+      "expect_document": "《信息与文献：参考文献著录规则》.pdf",
+      "meta": { "kind": "positive", "document": "参考文献著录规则" }
+    },
+    {
+      "question": "中国计算机学会推荐的国际学术会议有哪些",
+      "expect_document": "中国计算机学会推荐国际学术会议和期刊目录-2022.pdf",
+      "meta": { "kind": "positive", "document": "CCF 目录" }
+    },
+    {
+      "question": "人机交互与普适计算领域的期刊推荐",
+      "expect_document": "中国计算机学会推荐国际学术会议和期刊目录-2022.pdf",
+      "meta": { "kind": "positive", "document": "CCF 目录" }
+    },
+    {
+      "question": "数据库与数据挖掘方向的会议有哪些",
+      "expect_document": "中国计算机学会推荐国际学术会议和期刊目录-2022.pdf",
+      "meta": { "kind": "positive", "document": "CCF 目录" }
+    },
+    {
+      "question": "大语言模型与 Function Call 怎么结合使用",
+      "expect_document": "Linux智能助手课程论文(1).docx",
+      "meta": { "kind": "positive", "document": "课程论文" }
+    },
+    {
+      "question": "ReAct 推理架构的工作流程",
+      "expect_document": "Linux智能助手课程论文(1).docx",
+      "meta": { "kind": "positive", "document": "课程论文" }
+    },
+    {
+      "question": "智能助手系统的技术栈选型",
+      "expect_document": "Linux智能助手课程论文(1).docx",
+      "meta": { "kind": "positive", "document": "课程论文" }
+    },
+    {
+      "question": "人工智能专业学生如何找实习",
+      "expect_document": "Planning.txt",
+      "meta": { "kind": "positive", "document": "Planning.txt" }
+    },
+    {
+      "question": "暑期实习能力提升规划",
+      "expect_document": "Planning.txt",
+      "meta": { "kind": "positive", "document": "Planning.txt" }
+    },
+    {
+      "question": "LangChain 的学习路线怎么安排",
+      "expect_document": "Planning.txt",
+      "meta": { "kind": "positive", "document": "Planning.txt" }
+    },
+    {
+      "question": "宋代官窑瓷器的开片成因是什么",
+      "expect_document": null,
+      "meta": { "kind": "negative", "domain": "文物考古" }
+    },
+    {
+      "question": "心脏搭桥手术后的抗凝治疗方案",
+      "expect_document": null,
+      "meta": { "kind": "negative", "domain": "临床医学" }
+    },
+    {
+      "question": "火星大气中甲烷浓度的季节性变化",
+      "expect_document": null,
+      "meta": { "kind": "negative", "domain": "行星科学" }
+    },
+    {
+      "question": "敦煌壁画使用的矿物颜料配方",
+      "expect_document": null,
+      "meta": { "kind": "negative", "domain": "艺术史" }
+    },
+    {
+      "question": "深海热泉口古菌的能量代谢途径",
+      "expect_document": null,
+      "meta": { "kind": "negative", "domain": "微生物学" }
+    },
+    {
+      "question": "葡萄酒单宁含量与陈年时间的关系",
+      "expect_document": null,
+      "meta": { "kind": "negative", "domain": "食品科学" }
+    }
+  ]
+}

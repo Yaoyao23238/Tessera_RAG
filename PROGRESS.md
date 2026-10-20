@@ -97,7 +97,16 @@
   GitHub connector / 用户网页建仓给 URL）。.gitignore 已完备（data/、*.db、
   node_modules 已排除）
 
+### 七、文档体系整理（10-10 深夜，根源改写原则）
+- **规则沉淀（AGENTS.md）**：§6 升级为「修改事实性问题从根源改对，不打补丁」（禁止补丁堆/声明掩盖过时/只标注不改错）；§9 新增「最小实现优先（Ponytail 精神）」——Ponytail 是 GitHub 热门 AI 编程插件（写码前先想更轻量实现），经评估不装插件、精神收进铁律
+- **PROGRESS.md 拆分**：831 → 308 行（活内容：当前状态/近期进展/待办/规划/环境），12 个历史节移入 `docs/progress-archive.md`（537 行），新接手 20 行看清现状
+- **ARCHITECTURE.md 逐节校对改写**（13 个章节）：技术栈/架构图/交互流程/状态机/数据模型/切分八阶段/向量化/检索/存储/缓存/错误处理/API 概览/工程约定/MVP——全部过时断言（Chroma/NumpyStore、缺 rerank 阈值、缺 CHUNKER_VERSION、config_hash 清单缺项、WS 路由等）直接改对到与代码一致，未用声明掩盖
+- **PAIN_POINTS.md 事实改对**：幽灵打断条目状态从「P3 未修」更新为 image 路径已修（1371b42）+ heading 路径唯一残留
+- **README.md 重写**：定位/徽章/3 张实测截图（docs/images/）/核心能力/快速开始/文档导航表/已知边界；**LICENSE（MIT）新增**（署名 Yaoyao23238，如需改协议/署名告诉我）
+- 归属裁定：bug 归因以 PAIN_POINTS 为唯一事实源，PROGRESS 指向它；历史进展以 progress-archive 为唯一事实源
+
 ### 八、推送到 GitHub（10-20，仓库 Tessera_RAG）
+
 - 仓库创建 + 推送完成：`https://github.com/Yaoyao23238/Tessera_RAG`（**Private**，先保命后转公开）
 - 38 个 commit 全量上去，`main` = `e8edb7f` 与本地一致；分支名 master → main（GitHub 惯例，CI 触发分支含 main）
 - 推送前实测：294 passed + 3 skipped、tsc 零错误、工作区干净
@@ -111,13 +120,13 @@
   push 需走 v2rayN socks5（127.0.0.1:10808），单次 `git -c http.proxy=socks5://127.0.0.1:10808 push`
   （不持久化 git 配置）
 
-### 七、文档体系整理（10-10 深夜，根源改写原则）
-- **规则沉淀（AGENTS.md）**：§6 升级为「修改事实性问题从根源改对，不打补丁」（禁止补丁堆/声明掩盖过时/只标注不改错）；§9 新增「最小实现优先（Ponytail 精神）」——Ponytail 是 GitHub 热门 AI 编程插件（写码前先想更轻量实现），经评估不装插件、精神收进铁律
-- **PROGRESS.md 拆分**：831 → 308 行（活内容：当前状态/近期进展/待办/规划/环境），12 个历史节移入 `docs/progress-archive.md`（537 行），新接手 20 行看清现状
-- **ARCHITECTURE.md 逐节校对改写**（13 个章节）：技术栈/架构图/交互流程/状态机/数据模型/切分八阶段/向量化/检索/存储/缓存/错误处理/API 概览/工程约定/MVP——全部过时断言（Chroma/NumpyStore、缺 rerank 阈值、缺 CHUNKER_VERSION、config_hash 清单缺项、WS 路由等）直接改对到与代码一致，未用声明掩盖
-- **PAIN_POINTS.md 事实改对**：幽灵打断条目状态从「P3 未修」更新为 image 路径已修（1371b42）+ heading 路径唯一残留
-- **README.md 重写**：定位/徽章/3 张实测截图（docs/images/）/核心能力/快速开始/文档导航表/已知边界；**LICENSE（MIT）新增**（署名 Yaoyao23238，如需改协议/署名告诉我）
-- 归属裁定：bug 归因以 PAIN_POINTS 为唯一事实源，PROGRESS 指向它；历史进展以 progress-archive 为唯一事实源
+### 九、隐私清除与历史重建（10-20 晚）
+- **背景**：仓库公开后自查发现个人信息残留（真实姓名/学号/个人画像查询/打码前截图/QQ 邮箱提交身份），用户拍板彻底清除、历史只留最新
+- **文本脱敏**（947745c）：测试夹具假名化、评测查询泛化、归档文档文件名匿——测试语义未破坏（38 passed）
+- **截图替换**：切分预览图重截为公开国标（GB/T 7714）文档，playwright 无头脚本自带隐私断言；不再需要打码
+- **历史重建**（a694760）：orphan 单快照提交 + force push 覆盖远程——远程只剩 1 个 root commit，含隐私的旧历史全部消失；提交身份改 GitHub noreply（原身份邮箱含 QQ 号）
+- **全库复扫零残留**（姓名/学号/手机号/QQ/个人画像词）
+- 教训：①截图/测试夹具/提交邮箱都是隐私载体，公开发布前要按"身份信息三件套（姓名/学号/联系方式）"全面扫 ②git 历史里的旧版本同样可翻，脱敏必须连历史一起处理 ③CI/测试的假数据必须用假名
 
 ## 今日进展（10-09）：浏览器逐页 UI 走查完成 + 评测链路 2 个 P1
 
